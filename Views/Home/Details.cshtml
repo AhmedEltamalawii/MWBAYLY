@@ -1,0 +1,23 @@
+﻿<div class="row">
+    <div class="col-12 mb-3">
+        <h2><a href="/Home/Index"><i class="bi bi-arrow-left"></i></a> Back To home</h2>
+    </div>
+</div>
+@* @if (Model == null)
+{
+    <div class="alert alert-danger">Product not found.</div>
+} *@
+   <div class="card mb-3">
+        <div class="row g-0">
+            <div class="col-md-7">
+                <img src="~/images/images/@Model.ImgUrl" class="img-fluid rounded-start" alt="@Model.Name">
+            </div>
+            <div class="col-md-5">
+                <div class="card-body">
+                    <h5 class="card-title">@Model.Name</h5>
+                    <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content.</p>
+                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
