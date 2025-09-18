@@ -131,63 +131,6 @@ namespace MWBAYLY.Controllers
         }
 
 
-        //public IActionResult Edit(Product product, IFormFile ImgUrl) // "1.jpg"
-        //{
-        //    //var oldProduct = context.Products.AsNoTracking().FirstOrDefault(e => e.Id == product.Id);
-        //    if ( ImgUrl.Length > 0)
-        //    {
-        //        //var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ImgUrl.FileName); // ".jpg"
-        //        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images", fileName);
-        //    //    var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images", oldProduct.ImgUrl);
-
-        //        using (var stream = System.IO.File.Create(filePath))
-        //        {
-        //            ImgUrl.CopyTo(stream);
-        //        }
-
-
-
-
-        //        product.ImgUrl = fileName;
-        //    }
-        //    else
-        //    {
-        //        product.ImgUrl = oldProduct.ImgUrl;
-        //    }
-
-        //    context.Products.Update(product);
-        //    context.SaveChanges();
-
-        //    TempData["success"] = "Update category successfully";
-
-
-        //    return RedirectToAction(nameof(Index));
-        //}
-
-
-
-        //public IActionResult Delete(int productId)
-        //{
-        //    var oldProduct = context.Products.AsNoTracking().FirstOrDefault(e => e.Id == productId);
-        //    var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images\\images", oldProduct.ImgUrl);
-
-        //    if (System.IO.File.Exists(oldFilePath))
-        //    {
-        //        System.IO.File.Delete(oldFilePath);
-        //    }
-
-        //    Product product = new Product() { Id = productId };
-        //    context.Products.Remove(product);
-        //    context.SaveChanges();
-
-        //    TempData["success"] = "Delete product successfully";
-
-
-        //    return RedirectToAction(nameof(Index));
-        //}
-
-
-
         public IActionResult Delete(int productId)
         {
             var oldProduct = _productRepo.GetOne(p => p.Id == productId);
