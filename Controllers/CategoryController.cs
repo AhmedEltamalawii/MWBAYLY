@@ -1,12 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MWBAYLY.Data;
 using MWBAYLY.Models;
 using MWBAYLY.Repository;
 using MWBAYLY.Repository.IRepository;
+using MWBAYLY.Utlity;
 
 namespace MWBAYLY.Controllers
 {
+    [Authorize(Roles = $"{SD.adminRole},{SD.CompanyRole}")]
+    
     public class CategoryController : Controller
     {
         //ApplicationDbContext context = new ApplicationDbContext();//First With I Learn Before Learing SOLD
@@ -109,18 +113,6 @@ namespace MWBAYLY.Controllers
             return RedirectToAction(nameof(Index));
 
         }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         //public IActionResult Edit(Category Category)

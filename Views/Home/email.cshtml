@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "إرسال إيميل";
+}
+
+<h2>إرسال إيميل</h2>
+
+@if (ViewBag.Status != null)
+{
+    <div class="alert alert-success">@ViewBag.Status</div>
+}
+
+<form method="post">
+    <div class="form-group">
+        <label>إلى:</label>
+        <input type="email" name="email" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label>الموضوع:</label>
+        <input type="text" name="subject" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label>الرسالة:</label>
+        <textarea name="message" class="form-control" rows="5" required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">إرسال</button>
+</form>

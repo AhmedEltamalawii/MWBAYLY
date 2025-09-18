@@ -1,8 +1,23 @@
-﻿<div class="container py-5">
-<div class="text-center mb-5">
-    <h1 class="display-4 fw-bold text-primary mb-3">Welcome to EL_Sherif_Stores</h1>
-    <p class="lead text-muted">Discover premium products at unbeatable prices</p>
+﻿@section Scripts {
+
+    <partial name="_NoteficationPartial.cshtml"></partial>
+}
+<div class="container-fluid bg-gradient py-5 text-white"
+     style="background: linear-gradient(135deg, #0d6efd, #6610f2);">
+    <div class="text-center">
+        <h1 class="display-3 fw-bold mb-3 animate__animated animate__fadeInDown">
+            ELSherif Stores
+        </h1>
+        <p class="lead mb-4 animate__animated animate__fadeInUp">
+            Discover <span class="fw-bold text-warning">premium products</span>
+            at unbeatable prices 🚀
+        </p>
+        <a href="/Home/Index" class="btn btn-warning btn-lg px-4 rounded-pill shadow">
+            Shop Now <i class="bi bi-arrow-right-circle"></i>
+        </a>
+    </div>
 </div>
+
 <div class="row">
     @foreach (var item in Model)
     {

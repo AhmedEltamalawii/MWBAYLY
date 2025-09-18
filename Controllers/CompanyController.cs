@@ -3,19 +3,25 @@ using Microsoft.EntityFrameworkCore;
 using MWBAYLY.Data;
 using MWBAYLY.Models;
 using MWBAYLY.Repository;
+using MWBAYLY.Repository.IRepository;
 
 namespace MWBAYLY.Controllers
 {
     public class CompanyController : Controller
     {
-        ApplicationDbContext context = new ApplicationDbContext();
+      //  ApplicationDbContext context = new ApplicationDbContext();
+        private readonly  ICompanyRepository _companyRepository;
+        public CompanyController(ICompanyRepository _companyRepository)
+        {
+            this._companyRepository = _companyRepository;  
+        }
         public IActionResult Index()
         {
-            var Campanies = context.Campanies.Include(e => e.Products).ToList();
-            return View(Campanies);
+            var companies = _companyRepository.GetAll(e=>e.Products); // use repository
+            return View(companies);
         }
 
-        public IActionResult CreateNew()
+        public IActionResult Create()
         {
             Company company = new Company();
 
@@ -23,27 +29,59 @@ namespace MWBAYLY.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateNew(Company company)
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(Company company)
         {
             if (ModelState.IsValid)
             {
-                // Company company = new Company() { Name = CompanyName };
+                _companyRepository.CreateNew(company);
+                _companyRepository.Commit();
+                TempData["success"] = "Company added successfully!";
+                return RedirectToAction(nameof(Index));
+            }
+            return View(company);
+        }
+        public IActionResult Edit(int companyId)
+        {
+            var company = _companyRepository.GetOne(c => c.Id == companyId);
+            if (company == null)
+            {
+                RedirectToAction("NotFoundAction", "Home");
+            }
+            return View(company);
+          
+        }
 
-                //this Code related with Cookies
-                //CookieOptions options = new CookieOptions();
-                //  options.Secure= true;
-                //  options.Expires = DateTimeOffset.Now.AddDays(2);
-                //  Response.Cookies.Append("success", " Operation Success ", options);
-                //context.categories.Add(company);
-                //context.SaveChanges();
-                //Soild
-                context.Campanies.Add(company);
-                TempData["success"] = "Add Successfuly ";
-                context.SaveChanges();
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Company company)
+        {
+            if (ModelState.IsValid)
+            {
+                _companyRepository.Edit(company);
+                _companyRepository.Commit();
+                TempData["success"] = "Company updated successfully!";
+                return RedirectToAction(nameof(Index));
+            }
+            return View(company);
+        }
+
+
+
+        public IActionResult Delete(int companyId)
+        {
+            var company = _companyRepository.GetOne(c => c.Id == companyId);
+            if (ModelState.IsValid)
+            {
+                _companyRepository.delete(company);
+                _companyRepository.Commit();
+                TempData["success"] = "Company deleted successfully!";
                 return RedirectToAction(nameof(Index));
 
             }
             return View(company);
         }
+
+
     }
 }

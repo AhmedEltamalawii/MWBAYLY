@@ -1,0 +1,98 @@
+﻿@model List<Cart>
+
+@section Scripts {
+    <partial name="_NoteficationPartial.cshtml" />
+}
+
+<form method="post" class="mb-5">
+    <div class="card shadow border-0">
+        <!-- Header -->
+        <div class="card-header bg-secondary bg-gradient text-light py-4">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h4 class="mb-0 text-white">Shopping Cart</h4>
+                </div>
+                <div class="col text-end">
+                    <a href="/Products" class="btn btn-outline-light btn-sm text-uppercase">
+                        Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart Items -->
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <div class="row border-bottom pb-3 mb-3 align-items-center">
+                        <!-- Product Image -->
+                        <div class="col-12 col-md-2 text-center mb-2 mb-md-0">
+                            <img src="~/images/images/@item.Product.ImgUrl" class="rounded img-fluid" style="max-height: 100px;" alt="@item.Product.Name" />
+                        </div>
+
+                        <!-- Product Info -->
+                        <div class="col-12 col-md-4">
+                            <h5 class="text-uppercase text-secondary mb-1"><strong>@item.Product.Name</strong></h5>
+                            <p class="small text-muted mb-0">@item.Product.Description</p>
+                        </div>
+
+                        <!-- Quantity & Price -->
+                        <div class="col-12 col-md-3 text-center text-md-start">
+                            <h6 class="fw-semibold mb-2">
+                                @item.Product.Price.ToString("c")
+                                <span class="text-muted">×</span> @item.Count
+                            </h6>
+                            <div class="btn-group" role="group">
+                                <a href="/Cart/Increment?productId=@item.ProductId"
+                                   class="btn btn-outline-primary btn-sm" title="Increase quantity">
+                                    <i class="bi bi-plus-square"></i>
+                                </a>
+                                <a href="/Cart/Decrement?productId=@item.ProductId"
+                                   class="btn btn-outline-primary btn-sm" title="Decrease quantity">
+                                    <i class="bi bi-dash-square"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Remove Button -->
+                        <div class="col-12 col-md-3 text-center text-md-end">
+                            <a href="/Cart/Delete?productId=@item.ProductId"
+                               class="btn btn-danger btn-sm" title="Remove from cart">
+                                <i class="bi bi-trash-fill"></i> Remove
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <h5 class="text-muted">Your cart is empty.</h5>
+                    <a href="/Home/Index" class="btn btn-primary mt-3">Start Shopping</a>
+                </div>
+            }
+        </div>
+
+        <!-- Footer: Total Price & Checkout -->
+        @if (Model != null && Model.Any())
+        {
+            <div class="card-footer bg-light">
+                <div class="row align-items-center">
+                    <div class="col-md-6 offset-md-3">
+                        <ul class="list-group list-group-flush mb-3">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">Total:</span>
+                                <span class="fw-bold text-primary">@ViewBag.TotalPrice EGP</span>
+                            </li>
+                        </ul>
+                        <a href="/Cart/Pay" class="btn btn-primary w-100 py-2 fw-bold">
+                            <i class="bi bi-credit-card-fill"></i> Checkout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</form>

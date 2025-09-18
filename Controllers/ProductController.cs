@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MWBAYLY.Data;
+using MWBAYLY.Helper_servec;
 using MWBAYLY.Models;
+using MWBAYLY.Repository.IRepository;
 using System.Linq;
 using System.Text;
 
@@ -10,32 +12,52 @@ namespace MWBAYLY.Controllers
 {
     public class ProductController : Controller
     {
-        ApplicationDbContext context = new ApplicationDbContext();
-        public IActionResult Index(int page)
+        private readonly IProductRepository _productRepo;
+        private readonly IRepository<Category> _categoryRepo;
+        public ProductController(IProductRepository productRepo, IRepository<Category> categoryRepo)
         {
-            
-            if (page<=0)
-            
+            _productRepo = productRepo;
+            _categoryRepo = categoryRepo;
+        }
+        public IActionResult Index(int page = 1, string? search = null) // 1, 2, 3
+        {
+            int pageSize = 5;
+            if (page < 1)
                 page = 1;
-                var Products = context.Products.Include(e => e.Category).Skip((page - 1) * 5).Take(4).ToList();
 
-            //if (Products.Count)
-            //{ return View(Products);
-            //}
-            if (Products.Any())
+             var products = _productRepo.GetAll(c=>c.Category);
+
+            if (search != null)
             {
-                return View(Products.ToList());
+                search = search.Trim();
+                products = products.Where(e => e.Name.Contains(search) || e.Description.Contains(search) || e.Category.Name.Contains(search));
             }
+            int totalProducts = products.Count();
+            int totalPages = (int)Math.Ceiling(totalProducts / (double)pageSize);
+
+            products = products.Skip((page - 1) * pageSize).Take(pageSize);
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.Search = search;
+
+
+            if (products.Any())
+            {
+                return View(products.ToList());
+            }
+         
 
             return RedirectToAction("NotFoundPage", "Home");
-
         }
+
 
         public IActionResult CreateNew()
         {
-            var Categories = context.categories.ToList();//.Select(e => new SelectListItem { Text = e.Name, Value = e.Id.ToString() });
-           // ViewBag.categories = categories;
+            var Categories = _categoryRepo.GetAll().ToList();//.Select(e => new SelectListItem { Text = e.Name, Value = e.Id.ToString() });
+                                                             // ViewBag.categories = Categories;
             ViewData["Categories"]=Categories;
+
             Product product = new Product();
             return View(product);
         }
@@ -51,68 +73,35 @@ namespace MWBAYLY.Controllers
 
             if (ModelState.IsValid)
             {
-                if (ImgUrl.Length > 0)
-                {
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ImgUrl.FileName); // ".jpg"
-                                                                                                   // var fileName = ImgUrl.FileName; //  name of photo 1.pnj
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images\\images", fileName);
+               
 
-                    using (var stream = System.IO.File.Create(filePath))
-                    {
-                        ImgUrl.CopyTo(stream);
-                    }
+                product.ImgUrl = Imgfile.SaveImage(ImgUrl);
+                _productRepo.CreateNew(product);
+                _productRepo.Commit();
 
-                    product.ImgUrl = fileName;
-                }
-
-                context.Products.Add(product);
-                context.SaveChanges();
-                TempData["success"] = "Add category successfully";
+                TempData["success"] = "Add product successfully";
                 return RedirectToAction(nameof(Index));
             }
-            var Categories = context.categories.ToList();
+            var Categories = _categoryRepo.GetAll().ToList();
             ViewData["Categories"] = Categories;
             return View(product);
 
 
         }
 
-       
-
-
-		//public IActionResult CreateNew(Product product ,IFormFile ImgUrl)
-		//{
-		//    //if (ImgUrl.Length > 0)
-		//    //{
-		//        var FileName = Path.GetTempFileName();
-		//        var FilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot \\ images");
-		//        using (var stream = System.IO.File.Create(FileName))
-		//        {
-		//            ImgUrl.CopyTo(stream);
-		//        }
-		//        product.ImgUrl = ImgUrl.FileName;
-		//    //}
-		//    context.Products.Add(product);
-		//    context.SaveChanges();
-		//    return RedirectToAction(nameof(Index));
-
-		//}
-		//[HttpPost]
-		//public IActionResult CreateNew(String ProductName)
-
-		//{
-		//    Category category = new Category() { Name = ProductName };
-		//    context.categories.Add(category);
-		//    context.SaveChanges();
-		//    return RedirectToAction(nameof(Index));
-
-		//}
-
 
 		public IActionResult Edit(int ProductId) // when you like make edit with use URl you must use Qeury String  Such AS "/Category/Edit?categoryId=3"
         {
-            var Product = context.Products.Find(ProductId);
-            var categories = context.categories.ToList();
+            /*var product = context.Products.Where(e=>e.Id == ProductId)
+                .Select(e => new Category()
+                 {
+                     Id = e.Id,
+                     Name = e.Name,
+                 }).FirstOrDefault();
+             or */
+            var Product = _productRepo.GetOne(p => p.Id == ProductId);
+
+            var categories = _categoryRepo.GetAll().ToList();
             ViewData["allCategories"] = categories;
             //ViewBag.allCategories = categories;
          
@@ -124,46 +113,23 @@ namespace MWBAYLY.Controllers
         }
 
 
+        
         [HttpPost]
-       
-
         public IActionResult Edit(Product product, IFormFile ImgUrl)
         {
-            //Category category = new Category() { Name = CategoryName };
-            // here without NoTracking the error apper because the efCore The data follow To Road of data but when i use the AsNotracking Repair this error 
-            var oldProduct =context.Products.AsNoTracking().FirstOrDefault(e=>e.Id==product.Id);
-            if (ImgUrl != null && ImgUrl.Length > 0)
-            {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ImgUrl.FileName); // ".jpg"
-                                                                                               //  var fileName = ImgUrl.FileName; //  name of photo 1.pnj
-                var FilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images\\images", fileName);
-                var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images\\images", fileName, oldProduct.ImgUrl);
+            var oldProduct = _productRepo.GetOne(p => p.Id == product.Id);
 
-                using (var stream = System.IO.File.Create(FilePath))
-                {
-                    ImgUrl.CopyTo(stream);
-                }
+            if (oldProduct == null)
+                return RedirectToAction("NotFoundPage", "Home");
 
-                if (System.IO.File.Exists(oldFilePath))
-                {
-                    System.IO.File.Delete(oldFilePath);
-                }
-                product.ImgUrl = fileName;
+            product.ImgUrl = Imgfile.SaveImage(ImgUrl, oldProduct.ImgUrl);
+            _productRepo.Edit(product);
+            _productRepo.Commit();
 
-            }
-			else
-			{
-				product.ImgUrl = oldProduct.ImgUrl;
-			}
+            TempData["success"] = "Update Product successfully";
+            return RedirectToAction(nameof(Index));
+        }
 
-			context.Products.Update(product);
-			context.SaveChanges();
-
-			TempData["success"] = "Update category successfully";
-
-
-			return RedirectToAction(nameof(Index));
-		}
 
         //public IActionResult Edit(Product product, IFormFile ImgUrl) // "1.jpg"
         //{
@@ -224,30 +190,20 @@ namespace MWBAYLY.Controllers
 
         public IActionResult Delete(int productId)
         {
-            var oldProduct = context.Products.AsNoTracking().FirstOrDefault(e => e.Id == productId);
+            var oldProduct = _productRepo.GetOne(p => p.Id == productId);
 
-            if (oldProduct != null) { RedirectToAction("NotFoundAction", "Home"); }
+            if (oldProduct == null) { return RedirectToAction("NotFoundAction", "Home"); }
 
-            if(!string.IsNullOrEmpty(oldProduct.ImgUrl)) 
-            {
-                var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images\\images", oldProduct.ImgUrl);
+            Imgfile.DeleteImage(oldProduct.ImgUrl);
 
-                if (System.IO.File.Exists(oldFilePath))
-                {
-                    System.IO.File.Delete(oldFilePath);
-                }
-
-            }
-
-
-            Product product = new Product() { Id = productId };
-            context.Products.Remove(product);
-            context.SaveChanges();
+            _productRepo.delete(oldProduct);
+            _productRepo.Commit();
 
             TempData["success"] = "Delete product successfully";
 
 
             return RedirectToAction(nameof(Index));
 
-     }   }
+     }
+}
 }

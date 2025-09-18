@@ -4,6 +4,8 @@ using MWBAYLY.Data;
 using MWBAYLY.Models;
 using MWBAYLY.Repository;
 using MWBAYLY.Repository.IRepository;
+using MWBAYLY.Utlity;
+using Stripe;
 using System.ComponentModel;
 
 namespace MWBAYLY
@@ -21,13 +23,37 @@ namespace MWBAYLY
             builder.Services.AddDbContext<ApplicationDbContext>(
             option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));//This IS Responsiable with Dependancy Injection 
 
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-           .AddEntityFrameworkStores<ApplicationDbContext>();
+            // builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+            //.AddEntityFrameworkStores<ApplicationDbContext>()
+            //  .AddDefaultTokenProviders();
 
-            builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();//This make is New Object 
+            //builder.Services.Configure<IdentityOptions>(options =>
+            //{
+            //    options.User.AllowedUserNameCharacters =
+            //        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@ "; // note the space at the end
 
-            var app = builder.Build();
+            //    options.User.RequireUniqueEmail = true;
+            //});
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
+            builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+            builder.Services.AddScoped<ICartRepository, CartRepository>();//This make is New Object 
+            builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+
+            builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = true; // Require email confirmation
+            })
+           .AddEntityFrameworkStores<ApplicationDbContext>()
+           .AddDefaultTokenProviders();
+
+            builder.Services.AddTransient<IEmailSender, EmailSender>(); 
+                        var app = builder.Build();
+        
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
@@ -42,7 +68,10 @@ namespace MWBAYLY
 
             app.UseRouting();
 
+            app.UseAuthentication(); // ??? ?? Identity
             app.UseAuthorization();
+
+           
 
             app.MapControllerRoute(
                 name: "default",

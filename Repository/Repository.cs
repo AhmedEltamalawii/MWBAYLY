@@ -50,9 +50,16 @@ namespace MWBAYLY.Repository
 
 
         //}
+        //public T? GetOne(Expression<Func<T, bool>> expression, Expression<Func<T, Object>>? Include = null)
+        //{
+        //    //return GetAll(Include, expression).FirstOrDefault();
+        //    return Include == null
+        //      ? dbSet.AsNoTracking().FirstOrDefault(expression)
+        //     : dbSet.Include(Include).AsNoTracking().FirstOrDefault(expression);
+        //}
         public T? GetOne(Expression<Func<T,bool>>expression)
         {
-            return dbSet.Where(expression).FirstOrDefault();
+            return dbSet.AsNoTracking().Where(expression).FirstOrDefault();
         }
         public void CreateNew(T entity)
         {
@@ -75,14 +82,5 @@ namespace MWBAYLY.Repository
             context.SaveChanges();
         }
 
-        //public T? GetOne(int categoryId)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-    //    public List<T> GetAll(string? Include = null)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
     }
 }

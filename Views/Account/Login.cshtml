@@ -1,44 +1,39 @@
-﻿@model MWBAYLY.ViewModel.LoginVM
-
+﻿@model LoginVM
 @{
-    ViewData["Title"] = "Login";
-   
+    ViewData["Title"] = "Log In";
 }
 
-<h1>Login</h1>
+<div class="container mt-5">
+    <h2>Log In</h2>
+    <form asp-action="LogIn" method="post">
+        @Html.AntiForgeryToken()
 
-<h4>LoginVM</h4>
-<hr />
-<div class="row">
-    <div class="col-md-12">
-        <form asp-action="Login">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="UserName" class="control-label"></label>
-                <input asp-for="UserName" class="form-control" />
-                <span asp-validation-for="UserName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="RemeberMe" /> @Html.DisplayNameFor(model => model.RemeberMe)
-                </label>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-<div>
-    <a asp-action="Index" >Back to List</a>
+        <!-- Username -->
+        <div class="form-group">
+            <label asp-for="UserName"></label>
+            <input asp-for="UserName" class="form-control" />
+            <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+            <label asp-for="Password"></label>
+            <input asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <!-- Remember Me -->
+        <div class="form-group form-check">
+            <input asp-for="RemeberMe" class="form-check-input" />
+            <label asp-for="RemeberMe" class="form-check-label"></label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Log In</button>
+    </form>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <partial name="_ValidationScriptsPartial" />
 }

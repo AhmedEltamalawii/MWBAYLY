@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using MWBAYLY.Utlity
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -9,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MWBAYLY.styles.css" asp-append-version="true" />
+    @RenderSection("Title", required: false)
+
 </head>
 <body>
     <header>
@@ -24,36 +27,60 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                       @* this is the link to make dropdown  *@
-                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Management System</a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="/Category/Index">Categories</a> @* this make connection with behind controller IS Named Category  *@
-                                 <a class="dropdown-item" href="/Product/Index">Products</a> @* this make connection with behind controller IS Named Category  *@
-                                <a class="dropdown-item" href="/Company/Index">Companies</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">Separated link</a>
-                            </div>
-                        </li>
+                        @if (User.IsInRole(SD.adminRole) || User.IsInRole(SD.CompanyRole))
+                        @* this is the link to make dropdown  *@
+                        {
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Management System</a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="/Category/Index">Categories</a> @* this make connection with behind controller IS Named Category  *@
+                                    <a class="dropdown-item" href="/Product/Index">Products</a> @* this make connection with behind controller IS Named Category  *@
+                                    @if (User.IsInRole(SD.adminRole))
+                                    {
+                                        <a class="dropdown-item" href="/Company/Index">Companies</a>
+                                    
+                                    }
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#">Separated link</a>
+                                </div>
+                            </li>
+
+                        }
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        <li class="nav-item mx-2">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Cart" asp-action="Index"><i class="bi bi-cart"></i></a>
+                        </li>
+
                     </ul>
 
                      <ul class="navbar-nav ">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">LogIn</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">LogOut</a>
-                        </li>
-                     
+                        @if(!User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">LogIn</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">LogOut</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Profile">Welcome @User.Identity.Name</a>
+                            </li>
+
+                        }
+
+                        
                     </ul>
                 </div>
             </div>

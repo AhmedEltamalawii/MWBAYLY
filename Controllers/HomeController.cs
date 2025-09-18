@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MWBAYLY.Data;
 using MWBAYLY.Models;
+using MWBAYLY.Utlity;
 using System.Diagnostics;
 
 namespace MWBAYLY.Controllers
@@ -11,13 +12,31 @@ namespace MWBAYLY.Controllers
 
 		private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IEmailSender emailSender)
         {
             _logger = logger;
+            _emailSender = emailSender;
+        }
+        private readonly IEmailSender _emailSender;
+
+      
+
+        [HttpGet]
+        public IActionResult email()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> email(string email, string subject, string message)
+        {
+            await _emailSender.SendEmailAsync(email, subject, message);
+            ViewBag.Status = "تم إرسال الإيميل بنجاح!";
+            return View();
         }
 
         public IActionResult Index()
-        { 
+        {
             var product = Context.Products.ToList();
             return View(model: product);
         }

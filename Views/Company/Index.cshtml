@@ -6,7 +6,6 @@
     <partial name="_NoteficationPartial.cshtml"></partial>
 } *@
 
-@* <h1>@TempData["success"]</h1> *@ 
  @section Scripts
 {
     @if (TempData["success"] != null)
@@ -43,7 +42,7 @@ when I have read the Cookies Direct
 
     </div>
     <div class="col-3">
-        <a href="/Company/CreateNew" type="button" class="btn btn-danger">
+        <a href="/Company/Create" type="button" class="btn btn-danger">
             <i class="bi bi-plus-circle"></i> Create New Company
         </a>
     </div>
@@ -74,12 +73,9 @@ when I have read the Cookies Direct
 
 
                     <td>
-                        <!-- Update Button that triggers modal -->
-                        <a href type="/Company/Edit?companyId=@item.Id" type="buttom" class="btn btn-dark">
+                        <a  href="/Company/Edit?companyId=@item.Id" type="buttom" class="btn btn-dark">
                             <i class="bi bi-pencil-square"></i> Edit
                         </a>
-
-                        <!-- Delete Button that triggers modal -->
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#deleteModal" data-companyid="@item.Id" data-companyname="@item.Name">
                             <i class="bi bi-trash3"></i> Delete
                         </button>
@@ -128,12 +124,3 @@ when I have read the Cookies Direct
     });
 </script>
 
-
-
-
-
-@*
-         <td>
-                            <a href="/Company/Edit?companyId=@item.Id" type="button" class="btn btn-dark">
-                                <i class="bi bi-pencil-square"></i> Edit
-                            </a> *@
